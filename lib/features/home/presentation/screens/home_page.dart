@@ -1,4 +1,6 @@
 import 'dart:ui';
+import 'package:clickcut_mobile/features/home/presentation/screens/init_screen.dart';
+import 'package:clickcut_mobile/features/home/presentation/screens/services_screen.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,12 +17,34 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
   static final List<Widget> _pages = <Widget>[
-    const _PlaceholderPage(title: 'Início', icon: Icons.home_rounded),
-    const _PlaceholderPage(
-        title: 'Serviços', icon: Icons.design_services_rounded),
+    const InitScreen(),
+    const ServicesScreen(),
     const _PlaceholderPage(title: 'Agenda', icon: Icons.calendar_month_rounded),
     const _PlaceholderPage(title: 'Perfil', icon: Icons.person_rounded),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+
+    /// 👇 Isso remove a cor da barra de navegação do celular
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+    final navColor = Theme.of(context)
+        .colorScheme
+        .surfaceContainer
+        .withOpacity(0.8); // mesma cor da navbar
+
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        systemNavigationBarColor: navColor, // 👈 barra de navegação
+        systemNavigationBarIconBrightness: Brightness.light, // ícones claros
+        systemNavigationBarDividerColor: Colors.transparent,
+        statusBarColor: Colors.transparent, // barra superior transparente
+        statusBarIconBrightness: Brightness.light, // ícones da status bar
+      ),
+    );
+  });
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -35,22 +59,16 @@ class _HomePageState extends State<HomePage> {
             ? Brightness.light
             : Brightness.dark;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: iconBrightness,
-        systemNavigationBarColor: Colors.transparent,
-        systemNavigationBarIconBrightness: iconBrightness,
-      ),
-      child: Scaffold(
-        extendBody: true,
-        body: Stack(
-          children: [
-            Center(
-              child: _pages.elementAt(_selectedIndex),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
+    return Scaffold(
+      extendBody: true,
+      body: Stack(
+        children: [
+          Center(
+            child: _pages.elementAt(_selectedIndex),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: SafeArea(
               child: Padding(
                 padding: const EdgeInsets.only(left: 0, right: 0, bottom: 0),
                 child: ClipRRect(
@@ -58,7 +76,7 @@ class _HomePageState extends State<HomePage> {
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
                     child: Container(
-                      height: 78,
+                      height: 60,
                       decoration: BoxDecoration(
                         color: Theme.of(context)
                             .colorScheme
@@ -67,7 +85,7 @@ class _HomePageState extends State<HomePage> {
                         borderRadius: BorderRadius.circular(5.0),
                       ),
                       child: Padding(
-                        padding: EdgeInsets.only(bottom: 20, top: 10),
+                        padding: EdgeInsets.only(bottom: 10, top: 10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
@@ -116,8 +134,8 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -130,11 +148,9 @@ class _AddButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Usamos Expanded para que ele ocupe o espaço corretamente na Row
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
-        // Usamos Center para centralizar o botão visualmente menor dentro da área expandida
         child: Center(
           child: Container(
             width: 60, // <-- ADICIONE um width fixo
