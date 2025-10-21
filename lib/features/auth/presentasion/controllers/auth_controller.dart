@@ -23,8 +23,10 @@ class LoginController extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
       return true; 
+
     } catch (e) {
-      _error = e.toString();
+      
+						_error = e.toString();
       _isLoading = false;
       notifyListeners();
       return false; 

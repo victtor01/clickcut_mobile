@@ -1,5 +1,5 @@
 import 'dart:ui';
-import 'package:clickcut_mobile/features/home/presentation/screens/init_screen.dart';
+import 'package:clickcut_mobile/features/general/presentation/screens/init_screen.dart';
 import 'package:clickcut_mobile/features/home/presentation/screens/services_screen.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +17,7 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
   static final List<Widget> _pages = <Widget>[
-    const InitScreen(),
+    InitScreen(),
     const ServicesScreen(),
     const _PlaceholderPage(title: 'Agenda', icon: Icons.calendar_month_rounded),
     const _PlaceholderPage(title: 'Perfil', icon: Icons.person_rounded),
@@ -27,12 +27,11 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
-    /// 👇 Isso remove a cor da barra de navegação do celular
     WidgetsBinding.instance.addPostFrameCallback((_) {
     final navColor = Theme.of(context)
         .colorScheme
         .surfaceContainer
-        .withOpacity(0.8); // mesma cor da navbar
+        .withOpacity(0.8);
 
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
@@ -54,11 +53,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final Brightness iconBrightness =
-        Theme.of(context).brightness == Brightness.dark
-            ? Brightness.light
-            : Brightness.dark;
-
     return Scaffold(
       extendBody: true,
       body: Stack(
@@ -153,7 +147,7 @@ class _AddButton extends StatelessWidget {
         onTap: onTap,
         child: Center(
           child: Container(
-            width: 60, // <-- ADICIONE um width fixo
+            width: 60,
             height: 40,
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),

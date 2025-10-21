@@ -38,11 +38,14 @@ class _LoginPageState extends State<LoginPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           backgroundColor: Colors.indigoAccent,
-          content: Text('Login realizado com sucesso!', style: TextStyle(color: Colors.white),),
+          content: Text( 
+            'Login realizado com sucesso!',
+            style: TextStyle(color: Colors.white),
+          ),
         ),
       );
 
-						context.go('/home');
+      context.go('/select');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -139,7 +142,10 @@ class _LoginPageState extends State<LoginPage> {
                       child: const Text(
                         'Entrar',
                         style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
+                          fontSize: 16,
+																										color: Colors.white,
+                          fontWeight: FontWeight.normal,
+                        ),
                       ),
                     ),
                     footer(context)
