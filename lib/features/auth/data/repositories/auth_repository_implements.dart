@@ -12,4 +12,11 @@ class AuthRepositoryImpl implements AuthRepository {
 
     return userMap["message"];
   }
+		
+		@override
+		Future<String> authBusiness(String businessId, String? password) async {
+				final authenticated = await remoteDataSource.authBusiness(businessId, password);
+
+				return authenticated["token"];
+		}
 }

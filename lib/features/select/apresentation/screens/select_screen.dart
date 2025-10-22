@@ -10,8 +10,7 @@ class SelectScreen extends StatefulWidget {
 }
 
 class _SelectScreenState extends State<SelectScreen> {
-  
-		@override
+  @override
   void initState() {
     super.initState();
 
@@ -55,6 +54,8 @@ class _SelectScreenState extends State<SelectScreen> {
         );
 
       case SelectBusinessState.success:
+        final colorsScheme = Theme.of(context).colorScheme;
+
         if (controller.businesses.isEmpty) {
           return const Center(child: Text('Nenhum negócio encontrado.'));
         }
@@ -63,110 +64,108 @@ class _SelectScreenState extends State<SelectScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
-              padding: const EdgeInsets.only(top: 70.0, bottom: 40.0),
+              padding: const EdgeInsets.only(
+                  top: 70.0, bottom: 40.0, left: 20, right: 20),
               child: Text(
-                "Qual negócio deseja acessar?", // Título
+                "Qual negócio deseja acessar?",
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.w500,
                     ),
               ),
             ),
-
             Expanded(
-              child: GridView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                itemCount: controller.businesses.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, // 2 colunas
-                  childAspectRatio: 0.8, // Proporção (largura / altura)
-                  mainAxisSpacing: 20,
-                  crossAxisSpacing: 20,
-                ),
-                itemBuilder: (context, index) {
-                  final business = controller.businesses[index];
-                  return GestureDetector(
-                    onTap: () {
-                      controller.selectBusiness(context, business);
-                    },
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(
-                          width: 130,
-                          height: 130,
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              // Imagem ou Placeholder
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(8.0),
-                                child: Container(
-                                  width: 130,
-                                  height: 130,
-                                  // Cor de fundo caso a imagem falhe
-                                  color: Colors.grey.shade800,
-                                  child: business.logoUrl != null
-                                      ? Image.network(
-                                          business.logoUrl!,
-                                          fit: BoxFit.cover,
-                                          // Feedback de loading
-                                          loadingBuilder:
-                                              (context, child, progress) {
-                                            if (progress == null) return child;
-                                            return const Center(
-                                                child:
-                                                    CircularProgressIndicator());
-                                          },
-                                          // Feedback de erro
-                                          errorBuilder:
-                                              (context, error, stack) {
-                                            return const Icon(Icons.business,
-                                                size: 60,
-                                                color: Colors.white70);
-                                          },
-                                        )
-                                      : const Icon(Icons.business,
-                                          size: 60, color: Colors.white70),
-                                ),
-                              ),
-
-                              // Ícone de Cadeado
-                              if (business.hasPassword)
-                                Positioned(
-                                  bottom: 8,
-                                  right: 8,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
-                                      color: Colors.black.withOpacity(0.6),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(Icons.lock,
-                                        size: 16, color: Colors.white),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 500),
+                  child: GridView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    itemCount: controller.businesses.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 200,
+                      childAspectRatio: 1,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                    ),
+                    itemBuilder: (context, index) {
+                      final business = controller.businesses[index];
+                      return FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(
+                              width: 140,
+                              height: 140,
+                              child: Material(
+                                borderRadius: BorderRadius.circular(8),
+                                color: colorsScheme.surfaceContainer,
+                                clipBehavior: Clip.antiAlias,
+                                child: InkWell(
+                                  onTap: () => controller.selectBusiness(
+                                      context, business),
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      SizedBox(
+                                        width: double.infinity,
+                                        height: double.infinity,
+                                        child: business.logoUrl != null
+                                            ? Ink.image(
+                                                image: NetworkImage(
+                                                    business.logoUrl!),
+                                                fit: BoxFit.cover,
+                                                width: double.infinity,
+                                                height: double.infinity,
+                                              )
+                                            : const Icon(Icons.business,
+                                                size: 50),
+                                      ),
+                                      if (business.hasPassword)
+                                        Positioned(
+                                          bottom: 6,
+                                          right: 6,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(3),
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  Colors.black.withOpacity(0.6),
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: const Icon(
+                                              Icons.lock,
+                                              size: 14,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                    ],
                                   ),
                                 ),
-                            ],
-                          ),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            // 3. ADICIONE UM GESTUREDETECTOR AO REDOR DO TEXTO
+                            GestureDetector(
+                              onTap: () =>
+                                  controller.selectBusiness(context, business),
+                              // Adiciona um comportamento para o detector de gestos
+                              behavior: HitTestBehavior.opaque,
+                              child: Text(
+                                business.name,
+                                textAlign: TextAlign.center,
+                                style: Theme.of(context).textTheme.titleSmall,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
                         ),
-
-                        const SizedBox(height: 12),
-
-                        // Nome do Negócio
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                          child: Text(
-                            business.name,
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.titleMedium,
-                            maxLines: 1, // Evita quebra de linha
-                            overflow: TextOverflow.ellipsis, // Adiciona "..."
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                      );
+                    },
+                  ),
+                ),
               ),
             ),
           ],

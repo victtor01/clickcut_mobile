@@ -1,6 +1,9 @@
+import 'package:clickcut_mobile/core/modules/auth_providers.dart';
+import 'package:clickcut_mobile/core/modules/business_providers.dart';
 import 'package:clickcut_mobile/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:clickcut_mobile/features/auth/data/repositories/auth_repository_implements.dart';
 import 'package:clickcut_mobile/features/auth/domain/interfaces/auth_repository.dart';
+import 'package:clickcut_mobile/features/auth/domain/services/auth_service.dart';
 import 'package:clickcut_mobile/features/auth/domain/usecases/login_usecase.dart';
 import 'package:clickcut_mobile/features/auth/presentasion/controllers/auth_controller.dart';
 import 'package:clickcut_mobile/features/auth/presentasion/screens/login_page.dart';
@@ -47,6 +50,9 @@ void main() async {
 
   dio.interceptors.add(CookieManager(cookieJar));
 
+  final sessionService = SessionService(dio: dio);
+  await sessionService.initSession();
+
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
@@ -55,36 +61,9 @@ void main() async {
       MultiProvider(
         providers: [
           Provider<Dio>.value(value: dio),
-          Provider<AuthRemoteDataSource>(
-            create: (context) => AuthRemoteDataSource(context.read<Dio>()),
-          ),
-          Provider<AuthRepository>(
-            create: (context) =>
-                AuthRepositoryImpl(context.read<AuthRemoteDataSource>()),
-          ),
-          Provider<LoginUseCase>(
-            create: (context) => LoginUseCase(context.read<AuthRepository>()),
-          ),
-          ChangeNotifierProvider<LoginController>(
-            create: (context) => LoginController(context.read<LoginUseCase>()),
-          ),
-
-          //business
-          Provider<BusinessRemoteDataSource>(
-            create: (context) => BusinessRemoteDataSource(context.read<Dio>()),
-          ),
-          Provider<BusinessRepository>(
-            create: (context) => BusinessRepositoryImpl(
-                context.read<BusinessRemoteDataSource>()),
-          ),
-          Provider<GetBusinessesUseCase>(
-            create: (context) =>
-                GetBusinessesUseCase(context.read<BusinessRepository>()),
-          ),
-          ChangeNotifierProvider<SelectBusinessController>(
-            create: (context) =>
-                SelectBusinessController(context.read<GetBusinessesUseCase>()),
-          ),
+          Provider<SessionService>.value(value: sessionService),
+          ...authProviders(dio),
+          ...businessProviders(dio),
         ],
         child: const MyApp(),
       ),
@@ -94,9 +73,39 @@ void main() async {
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
+final List<String> publicRoutes = [
+  '/login',
+  '/register',
+  '/forgot-password',
+];
+
 final GoRouter _router = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/login',
+  redirect: (context, state) {
+    final session = context.read<SessionService>();
+    final isPublic = publicRoutes.contains(state.uri.toString());
+
+  if (!session.isUserLogged && !isPublic) {
+    return '/login';
+  }
+
+  if (session.isUserLogged && session.hasBusinessSession) {
+    if (isPublic) return '/home'; // impede ir pro login novamente
+    return null; // pode acessar normalmente
+  }
+
+  if (session.isUserLogged && !session.hasBusinessSession) {
+    if (state.uri.toString() == '/select' ||
+        state.uri.toString().startsWith('/select/pin')) {
+      return null; // deixa passar
+    }
+    return '/select'; // força escolher empresa
+  }
+
+
+    return null;
+  },
   routes: [
     GoRoute(
       path: '/login',
@@ -108,7 +117,7 @@ final GoRouter _router = GoRouter(
     ),
     GoRoute(
       path: '/select',
-      builder: (context, state) => const SelectScreen(), // Corrigido
+      builder: (context, state) => const SelectScreen(),
       routes: [
         GoRoute(
           path: 'pin',
@@ -147,6 +156,7 @@ class MyApp extends StatelessWidget {
       colorScheme: ColorScheme.fromSeed(
         seedColor: Colors.indigo,
         brightness: Brightness.dark,
+        onPrimary: Colors.white,
       ).copyWith(
           primary: Colors.indigoAccent[400],
           secondary: Colors.indigoAccent[200]),

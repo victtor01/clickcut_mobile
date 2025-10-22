@@ -7,14 +7,28 @@ class AuthRemoteDataSource {
 
   Future<Map<String, dynamic>> login(String email, String password) async {
     try {
-      final response = await dio.post(
-        '/auth', 
-        data: {'email': email, 'password': password},
-      );
+      final response =
+          await dio.post('/auth', data: {'email': email, 'password': password});
 
-      return response.data; 
+      return response.data;
     } on DioException catch (e) {
       throw Exception('Falha no login: ${e.message}');
+    }
+  }
+
+  Future<Map<String, dynamic>> authBusiness(
+    String businessId,
+    String? password,
+  ) async {
+    try {
+      final response = await dio.post(
+        "/auth/business",
+        data: {'businessId': businessId, 'password': password},
+      );
+
+      return response.data;
+    } on DioException catch (e) {
+      throw Exception(e);
     }
   }
 }
