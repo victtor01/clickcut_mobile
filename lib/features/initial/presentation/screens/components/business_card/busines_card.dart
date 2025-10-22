@@ -1,7 +1,5 @@
 import 'package:clickcut_mobile/core/dtos/business_statement.dart';
-import 'package:clickcut_mobile/features/auth/domain/services/auth_service.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class BusinessCard extends StatelessWidget {
   final BusinessStatement statement;
@@ -11,7 +9,6 @@ class BusinessCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-	    final session = context.watch<SessionService>();
 
     return Padding(
       padding: const EdgeInsets.all(15),

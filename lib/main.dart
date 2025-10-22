@@ -1,29 +1,19 @@
 import 'package:clickcut_mobile/core/modules/auth_providers.dart';
 import 'package:clickcut_mobile/core/modules/business_providers.dart';
-import 'package:clickcut_mobile/features/auth/data/datasources/auth_remote_datasource.dart';
-import 'package:clickcut_mobile/features/auth/data/repositories/auth_repository_implements.dart';
-import 'package:clickcut_mobile/features/auth/domain/interfaces/auth_repository.dart';
 import 'package:clickcut_mobile/features/auth/domain/services/auth_service.dart';
-import 'package:clickcut_mobile/features/auth/domain/usecases/login_usecase.dart';
-import 'package:clickcut_mobile/features/auth/presentasion/controllers/auth_controller.dart';
 import 'package:clickcut_mobile/features/auth/presentasion/screens/login_page.dart';
-import 'package:clickcut_mobile/features/business/data/datasources/business_remote_datasource.dart';
-import 'package:clickcut_mobile/features/business/data/repositories/business_repository_implements.dart';
 import 'package:clickcut_mobile/features/business/domain/entities/business.dart';
-import 'package:clickcut_mobile/features/business/domain/interfaces/business_repository.dart';
-import 'package:clickcut_mobile/features/business/domain/usecases/get_business_usecase.dart';
 import 'package:clickcut_mobile/features/home/presentation/screens/home_page.dart';
-import 'package:clickcut_mobile/features/select/apresentation/controllers/select_business_controller.dart';
 import 'package:clickcut_mobile/features/select/apresentation/screens/pin_entry_screen.dart';
 import 'package:clickcut_mobile/features/select/apresentation/screens/select_screen.dart';
+import 'package:cookie_jar/cookie_jar.dart';
+import 'package:dio/dio.dart';
+import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:dio/dio.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-import 'package:cookie_jar/cookie_jar.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -86,23 +76,22 @@ final GoRouter _router = GoRouter(
     final session = context.read<SessionService>();
     final isPublic = publicRoutes.contains(state.uri.toString());
 
-  if (!session.isUserLogged && !isPublic) {
-    return '/login';
-  }
-
-  if (session.isUserLogged && session.hasBusinessSession) {
-    if (isPublic) return '/home'; // impede ir pro login novamente
-    return null; // pode acessar normalmente
-  }
-
-  if (session.isUserLogged && !session.hasBusinessSession) {
-    if (state.uri.toString() == '/select' ||
-        state.uri.toString().startsWith('/select/pin')) {
-      return null; // deixa passar
+    if (!session.isUserLogged && !isPublic) {
+      return '/login';
     }
-    return '/select'; // força escolher empresa
-  }
 
+    if (session.isUserLogged && session.hasBusinessSession) {
+      if (isPublic) return '/home'; // impede ir pro login novamente
+      return null; // pode acessar normalmente
+    }
+
+    if (session.isUserLogged && !session.hasBusinessSession) {
+      if (state.uri.toString() == '/select' ||
+          state.uri.toString().startsWith('/select/pin')) {
+        return null; // deixa passar
+      }
+      return '/select'; // força escolher empresa
+    }
 
     return null;
   },
