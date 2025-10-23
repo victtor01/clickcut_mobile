@@ -17,7 +17,7 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
   static final List<Widget> _pages = <Widget>[
-    InitScreen(),
+    InitialScreen(),
     const ServicesScreen(),
     const _PlaceholderPage(title: 'Agenda', icon: Icons.calendar_month_rounded),
     const _PlaceholderPage(title: 'Perfil', icon: Icons.person_rounded),

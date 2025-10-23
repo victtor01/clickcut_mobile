@@ -1,5 +1,6 @@
 import 'package:clickcut_mobile/core/dtos/business_statement.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class BusinessCard extends StatelessWidget {
   final BusinessStatement statement;
@@ -9,6 +10,12 @@ class BusinessCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+
+    final brlFormatter = NumberFormat.currency(
+      locale: 'pt_BR',
+      symbol: 'R\$',
+      decimalDigits: 2,
+    );
 
     return Padding(
       padding: const EdgeInsets.all(15),
@@ -33,7 +40,6 @@ class BusinessCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Top row: avatar + info + revenue
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -50,7 +56,6 @@ class BusinessCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      // Nome e email
                       Flexible(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,7 +84,7 @@ class BusinessCard extends StatelessWidget {
                 ),
                 // Receita
                 Text(
-                  "R\$ ${statement.revenue.toStringAsFixed(2)}",
+                 brlFormatter.format(statement.revenue / 100),
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -91,23 +96,21 @@ class BusinessCard extends StatelessWidget {
 
             const SizedBox(height: 15),
 
-            // Barra de progresso + labels
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Labels
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "R\$ ${statement.revenue.toStringAsFixed(2)}",
+                     brlFormatter.format(0),
                       style: const TextStyle(
                           fontSize: 14,
                           color: Colors.white70,
                           fontWeight: FontWeight.w400),
                     ),
                     Text(
-                      "R\$ ${statement.revenueGoal.toStringAsFixed(2)}",
+                      brlFormatter.format(statement.revenueGoal / 100),
                       style: const TextStyle(
                           fontSize: 14,
                           color: Colors.white70,

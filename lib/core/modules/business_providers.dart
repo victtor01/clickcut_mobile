@@ -4,8 +4,11 @@ import 'package:clickcut_mobile/features/business/data/datasources/business_remo
 import 'package:clickcut_mobile/features/business/data/repositories/business_repository_implements.dart';
 import 'package:clickcut_mobile/features/business/domain/interfaces/business_repository.dart';
 import 'package:clickcut_mobile/features/business/domain/usecases/get_business_usecase.dart';
+import 'package:clickcut_mobile/features/initial/domain/usecases/find_statement_usecase.dart';
+import 'package:clickcut_mobile/features/initial/presentation/controllers/initial_controller.dart';
 import 'package:clickcut_mobile/features/select/apresentation/controllers/entry_pin_controller.dart';
 import 'package:clickcut_mobile/features/select/apresentation/controllers/select_business_controller.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:dio/dio.dart';
 import 'package:provider/single_child_widget.dart';
@@ -30,13 +33,22 @@ List<SingleChildWidget> busienssUseCaseProviders() => [
       Provider<GetBusinessesUseCase>(
           create: (context) =>
               GetBusinessesUseCase(context.read<BusinessRepository>())),
+      Provider<FindStatementUsecase>(
+          create: (context) => FindStatementUsecase(
+              businessRepository: context.read<BusinessRepository>()))
     ];
 
 List<SingleChildWidget> businessControllerProviders() => [
       ChangeNotifierProvider<SelectBusinessController>(
-          create: (context) =>
-              SelectBusinessController(context.read<GetBusinessesUseCase>(), context.read<AuthBusinessUseCase>(), context.read<SessionService>())),
+          create: (context) => SelectBusinessController(
+              context.read<GetBusinessesUseCase>(),
+              context.read<AuthBusinessUseCase>(),
+              context.read<SessionService>())),
       ChangeNotifierProvider<PinEntryController>(
           create: (context) =>
               PinEntryController(context.read<AuthBusinessUseCase>())),
+      ChangeNotifierProvider(
+          create: (context) => InitialController(
+              findStatementUsecase: FindStatementUsecase(
+                  businessRepository: context.read<BusinessRepository>())))
     ];

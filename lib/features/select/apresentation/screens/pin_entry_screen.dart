@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 
 class PinEntryScreen extends StatelessWidget {
   final Business business;
-  const PinEntryScreen({super.key, required this.business});
+  const PinEntryScreen({super.key, required this.business });
 
   @override
   Widget build(BuildContext context) {
