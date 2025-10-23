@@ -1,14 +1,67 @@
+import 'dart:ui';
 import 'package:clickcut_mobile/core/dtos/business_statement.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class BusinessCard extends StatelessWidget {
+class BusinessCard extends StatefulWidget {
   final BusinessStatement statement;
 
   const BusinessCard({super.key, required this.statement});
 
   @override
+  State<BusinessCard> createState() => _BusinessCardState();
+}
+
+class _BusinessCardState extends State<BusinessCard>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _opacityAnimation;
+
+  bool _isPressed = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 250),
+    );
+
+    final curved =
+        CurvedAnimation(parent: _controller, curve: Curves.elasticOut);
+
+    _opacityAnimation = Tween<double>(begin: 0.0, end: 0.25).animate(curved);
+
+    _controller.addListener(() {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onTapDown(TapDownDetails details) {
+    _controller.forward();
+    setState(() => _isPressed = true);
+  }
+
+  void _onTapUp(TapUpDetails details) {
+    _controller.reverse();
+    setState(() => _isPressed = false);
+  }
+
+  void _onTapCancel() {
+    _controller.reverse();
+    setState(() => _isPressed = false);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final statement = widget.statement;
     final colorScheme = Theme.of(context).colorScheme;
 
     final brlFormatter = NumberFormat.currency(
@@ -17,173 +70,200 @@ class BusinessCard extends StatelessWidget {
       decimalDigits: 2,
     );
 
+    final revenue = statement.revenue / 100;
+    final revenueGoal = statement.revenueGoal / 100;
+
     return Padding(
-      padding: const EdgeInsets.all(15),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(15),
-        decoration: BoxDecoration(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+      child: GestureDetector(
+        onTapDown: _onTapDown,
+        onTapUp: _onTapUp,
+        onTapCancel: _onTapCancel,
+        // MUDANÇA AQUI:
+        // O ClipRRect agora é o PAI do Stack.
+        // Ele vai cortar o card E o blur ao mesmo tempo.
+        child: ClipRRect(
           borderRadius: BorderRadius.circular(15),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [colorScheme.primary, colorScheme.secondary],
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-            )
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Row(
-                    children: [
-                      // Avatar circular
-                      Container(
-                        width: 50,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: colorScheme.surface,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Flexible(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              statement.name,
-                              style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            Text(
-                              statement.userSession.email,
-                              style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w300,
-                                  color: Colors.white70),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
+          clipBehavior: Clip.antiAlias, // Ajuda na suavização das bordas
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              // Card principal
+              // MUDANÇA AQUI: Removemos o ClipRRect de dentro do Stack
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(15),
+                decoration: BoxDecoration(
+                  // O 'borderRadius' foi removido do BoxDecoration,
+                  // pois o ClipRRect pai já faz o corte.
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [colorScheme.primary, colorScheme.secondary],
                   ),
-                ),
-                // Receita
-                Text(
-                 brlFormatter.format(statement.revenue / 100),
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                )
-              ],
-            ),
-
-            const SizedBox(height: 15),
-
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                     brlFormatter.format(0),
-                      style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.white70,
-                          fontWeight: FontWeight.w400),
-                    ),
-                    Text(
-                      brlFormatter.format(statement.revenueGoal / 100),
-                      style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.white70,
-                          fontWeight: FontWeight.w400),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
                     ),
                   ],
                 ),
-                const SizedBox(height: 5),
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final barWidth = constraints.maxWidth;
-                    final progressWidth =
-                        (statement.progressPercentage.clamp(0, 100) / 100) *
-                            barWidth;
-
-                    return Stack(
-                      clipBehavior: Clip.none,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(
-                          height: 10,
-                          decoration: BoxDecoration(
-                            color: Colors.black45,
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                        ),
-                        Container(
-                          height: 10,
-                          width: progressWidth,
-                          decoration: BoxDecoration(
-                            color: Colors.indigoAccent[100],
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                        ),
-                        Positioned(
-                          left: progressWidth - 25,
-                          top: 15,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: Colors.indigo.withOpacity(0.7),
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: Text(
-                              "${statement.progressPercentage.toStringAsFixed(0)}%",
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 50,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  color: colorScheme.surface,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: statement.logoUrl != null
+                                    ? ClipRRect(
+                                        borderRadius: BorderRadius.circular(50),
+                                        child: Image.network(
+                                          statement.logoUrl!,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      )
+                                    : const Icon(Icons.business, size: 30),
                               ),
-                            ),
+                              const SizedBox(width: 10),
+                              Flexible(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      statement.name,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    Text(
+                                      statement.userSession.email,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w300,
+                                        color: Colors.white70,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Text(
+                          brlFormatter.format(revenue),
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
                       ],
-                    );
-                  },
+                    ),
+                    const SizedBox(height: 15),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              brlFormatter.format(revenue),
+                              style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white70,
+                                  fontWeight: FontWeight.w400),
+                            ),
+                            Text(
+                              brlFormatter.format(revenueGoal),
+                              style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white70,
+                                  fontWeight: FontWeight.w400),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 5),
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            final barWidth = constraints.maxWidth;
+                            final progressWidth =
+                                (statement.progressPercentage.clamp(0, 100) /
+                                        100) *
+                                    barWidth;
+
+                            return Stack(
+                              children: [
+                                Container(
+                                  height: 10,
+                                  decoration: BoxDecoration(
+                                    color: Colors.black45,
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                ),
+                                Container(
+                                  height: 10,
+                                  width: progressWidth,
+                                  decoration: BoxDecoration(
+                                    color: Colors.indigoAccent[100],
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    // Estatísticas
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _statItem("Cancelados", statement.count.canceled),
+                        _statItem("Não apareceu", statement.count.noShow),
+                        _statItem("Completos", statement.count.finished),
+                        _statItem("Pagos", statement.count.paids),
+                      ],
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
 
-            const SizedBox(height: 25),
-
-            // Estatísticas finais
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _statItem("Cancelados", statement.count.canceled),
-                _statItem("Não apareceu", statement.count.noShow),
-                _statItem("Completos", statement.count.finished),
-                _statItem("Pagos", statement.count.paids),
-              ],
-            )
-          ],
+              // Overlay fixo de blur + porcentagem
+              if (_isPressed)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: Container(
+                      color: Colors.black.withOpacity(0.6),
+                      alignment: Alignment.center,
+                      child: Text(
+                        "${statement.progressPercentage.toStringAsFixed(0)}%",
+                        style: const TextStyle(
+                          fontSize: 40,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
