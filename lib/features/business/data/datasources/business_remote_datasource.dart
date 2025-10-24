@@ -1,4 +1,5 @@
-import 'package:clickcut_mobile/core/dtos/business_statement.dart';
+import 'package:clickcut_mobile/core/dtos/responses/booking_history.dart';
+import 'package:clickcut_mobile/core/dtos/responses/business_statement.dart';
 import 'package:dio/dio.dart';
 import 'package:clickcut_mobile/features/business/domain/entities/business.dart';
 
@@ -31,6 +32,21 @@ class BusinessRemoteDataSource {
       if (response.statusCode == 200) {
         final data = response.data as Map<String, dynamic>;
         return BusinessStatement.fromJson(data);
+      } else {
+        throw Exception('Failed to load business statement');
+      }
+    } on DioException catch (e) {
+      throw Exception('Failed to load business statement: ${e.message}');
+    }
+  }
+
+  Future<BookingHistoryResponse> getBookingHistory() async {
+    try {
+      final response = await _dio.get('/summary/bookings/history');
+
+      if (response.statusCode == 200) {
+        final data = response.data as Map<String, dynamic>;
+        return BookingHistoryResponse.fromJson(data);
       } else {
         throw Exception('Failed to load business statement');
       }

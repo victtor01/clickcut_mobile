@@ -21,7 +21,9 @@ dependencies:
   eva_icons_flutter: ^3.1.0
   path_provider: ^2.0.15
   pinput: ^5.0.2
-  intl: ^0.18.1
+  intl: ^0.17.0
+  charts_flutter: ^0.12.0
+  fl_chart: ^0.67.0
 
 dev_dependencies:
   flutter_test:

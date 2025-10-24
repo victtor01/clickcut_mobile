@@ -1,5 +1,5 @@
 import 'dart:ui';
-import 'package:clickcut_mobile/core/dtos/business_statement.dart';
+import 'package:clickcut_mobile/core/dtos/responses/business_statement.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -79,23 +79,16 @@ class _BusinessCardState extends State<BusinessCard>
         onTapDown: _onTapDown,
         onTapUp: _onTapUp,
         onTapCancel: _onTapCancel,
-        // MUDANÇA AQUI:
-        // O ClipRRect agora é o PAI do Stack.
-        // Ele vai cortar o card E o blur ao mesmo tempo.
         child: ClipRRect(
           borderRadius: BorderRadius.circular(15),
-          clipBehavior: Clip.antiAlias, // Ajuda na suavização das bordas
+          clipBehavior: Clip.antiAlias, 
           child: Stack(
             alignment: Alignment.center,
             children: [
-              // Card principal
-              // MUDANÇA AQUI: Removemos o ClipRRect de dentro do Stack
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(15),
                 decoration: BoxDecoration(
-                  // O 'borderRadius' foi removido do BoxDecoration,
-                  // pois o ClipRRect pai já faz o corte.
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -230,7 +223,6 @@ class _BusinessCardState extends State<BusinessCard>
                       ],
                     ),
                     const SizedBox(height: 10),
-                    // Estatísticas
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -244,7 +236,6 @@ class _BusinessCardState extends State<BusinessCard>
                 ),
               ),
 
-              // Overlay fixo de blur + porcentagem
               if (_isPressed)
                 Positioned.fill(
                   child: IgnorePointer(

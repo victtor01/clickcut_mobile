@@ -1,9 +1,10 @@
-import 'package:clickcut_mobile/core/dtos/business_statement.dart';
-import 'package:clickcut_mobile/core/dtos/business_statement_count.dart';
+import 'package:clickcut_mobile/core/dtos/responses/business_statement.dart';
+import 'package:clickcut_mobile/core/dtos/responses/business_statement_count.dart';
 import 'package:clickcut_mobile/features/auth/domain/entities/user.dart';
 import 'package:clickcut_mobile/features/auth/domain/services/auth_service.dart';
-import 'package:clickcut_mobile/features/initial/presentation/controllers/initial_controller.dart';
-import 'package:clickcut_mobile/features/initial/presentation/screens/components/business_card/busines_card.dart';
+import 'package:clickcut_mobile/features/initial/presentation/controllers/business_card_controller.dart';
+import 'package:clickcut_mobile/features/initial/presentation/screens/components/business_card/business_card.dart';
+import 'package:clickcut_mobile/features/initial/presentation/screens/components/dashboards/business_dashboards.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -57,9 +58,8 @@ class _InitialScreenState extends State<InitialScreen> {
           child: Column(
             children: [
               _apresentation(context),
-              BusinessCard(
-                statement: controller.statement!,
-              ),
+              BusinessCard(statement: controller.statement!),
+              BusinessDashboards()
             ],
           ),
         ),
@@ -89,24 +89,10 @@ class _InitialScreenState extends State<InitialScreen> {
             "Olá, $name",
             style: const TextStyle(fontSize: 24.0),
           ),
-          PopupMenuButton<String>(
-            onSelected: (value) {
-              if (value == 'config') {
-              } else if (value == 'logout') {
-                context.read<SessionService>().logout();
-                context.go('/login');
-              }
-            },
-            itemBuilder: (BuildContext context) => [
-              const PopupMenuItem(
-                value: 'config',
-                child: Text('Configurações'),
-              ),
-              const PopupMenuItem(
-                value: 'logout',
-                child: Text('Logout'),
-              ),
-            ],
+          // SUBSTITUÍDO: PopupMenuButton
+          GestureDetector(
+            onTap: () =>
+                _showUserActionsModal(context), // <--- CHAMA O NOVO MODAL
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
@@ -132,4 +118,47 @@ class _InitialScreenState extends State<InitialScreen> {
       ),
     );
   }
+
+  void _showUserActionsModal(BuildContext context) {
+  final sessionService = context.read<SessionService>();
+  final colorScheme = Theme.of(context).colorScheme;
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: false, 
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)), // Um raio um pouco menor
+    ),
+    backgroundColor: colorScheme.surfaceContainer, 
+    builder: (BuildContext bc) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0), 
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            ListTile(
+              leading: Icon(Icons.settings_outlined, color: colorScheme.onSurface),
+              title: const Text('Configurações'),
+              onTap: () {
+                Navigator.pop(bc);
+              },
+            ),
+            
+            ListTile(
+              leading: const Icon(Icons.logout, color: Colors.red),
+              title: const Text('Logout', style: TextStyle(color: Colors.red)),
+              onTap: () {
+                Navigator.pop(bc); // Fecha o modal
+                sessionService.logout();
+                context.go('/login');
+              },
+            ),
+
+            const SizedBox(height: 10), 
+          ],
+        ),
+      );
+    },
+  );
+}
 }

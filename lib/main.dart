@@ -1,9 +1,9 @@
-import 'package:clickcut_mobile/core/modules/auth_providers.dart';
-import 'package:clickcut_mobile/core/modules/business_providers.dart';
+import 'package:clickcut_mobile/core/providers/auth_providers.dart';
+import 'package:clickcut_mobile/core/providers/business_providers.dart';
 import 'package:clickcut_mobile/features/auth/domain/services/auth_service.dart';
 import 'package:clickcut_mobile/features/auth/presentasion/screens/login_page.dart';
 import 'package:clickcut_mobile/features/business/domain/entities/business.dart';
-import 'package:clickcut_mobile/features/home/presentation/screens/home_page.dart';
+import 'package:clickcut_mobile/features/home/presentation/screens/home_screen.dart';
 import 'package:clickcut_mobile/features/select/apresentation/screens/pin_entry_screen.dart';
 import 'package:clickcut_mobile/features/select/apresentation/screens/select_screen.dart';
 import 'package:cookie_jar/cookie_jar.dart';

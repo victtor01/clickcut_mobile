@@ -1,4 +1,4 @@
-import 'package:clickcut_mobile/core/dtos/business_statement_count.dart';
+import 'package:clickcut_mobile/core/dtos/responses/business_statement_count.dart';
 import 'package:clickcut_mobile/features/auth/domain/entities/user.dart';
 
 class BusinessStatement {

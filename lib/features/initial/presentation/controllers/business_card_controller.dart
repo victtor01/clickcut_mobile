@@ -1,4 +1,4 @@
-import 'package:clickcut_mobile/core/dtos/business_statement.dart';
+import 'package:clickcut_mobile/core/dtos/responses/business_statement.dart';
 import 'package:clickcut_mobile/features/initial/domain/usecases/find_statement_usecase.dart';
 import 'package:flutter/material.dart';
 

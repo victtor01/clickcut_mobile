@@ -1,5 +1,5 @@
 import 'dart:ui';
-import 'package:clickcut_mobile/features/initial/presentation/screens/init_screen.dart';
+import 'package:clickcut_mobile/features/initial/presentation/screens/initial_screen.dart';
 import 'package:clickcut_mobile/features/home/presentation/screens/services_screen.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
